@@ -24,11 +24,35 @@ To Implement ELLIPTIC CURVE CRYPTOGRAPHY(ECC)
 
 ## Program:
 
-
-
-## Output:
-
-
-## Result:
-The program is executed successfully
-
+      #include <stdio.h>
+      
+      typedef struct { long long x, y; } Point;
+      
+      long long modInv(long long a, long long m) {
+        long long m0 = m, x0 = 0, x1 = 1, q, t;
+        while (a > 1) {
+          q = a / m; t = m; m = a % m; a = t;
+          t = x0; x0 = x1 - q * x0; x1 = t;
+        }
+        return x1 < 0 ? x1 + m0 : x1;
+      }
+      
+      Point add(Point P, Point Q, long long a, long long p) {
+        Point R; long long λ;
+        if (P.x == Q.x && P.y == Q.y)
+          λ = (3 * P.x * P.x + a) * modInv(2 * P.y, p) % p;
+        else
+          λ = (Q.y - P.y) * modInv(Q.x - P.x, p) % p;
+        R.x = (λ * λ - P.x - Q.x + p) % p;
+        R.y = (λ * (P.x - R.x) - P.y + p) % p;
+        return R;
+      }
+      
+      Point mul(Point P, long long k, long long a, long long p) {
+        Point R = P; k--;
+        while (k--) R = add(R, P, a, p);
+        return R;
+      }
+      
+      int main() {
+        long long p, a, b, privA, privB;
